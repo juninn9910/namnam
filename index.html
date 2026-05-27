@@ -77,7 +77,7 @@
     <h1>🏮 쩡이네 최후의 만찬</h1>
 
     <div class="section-box">
-        <h2>👥 1. 니 누군지 골라라 (출석 필수)</h2>
+        <h2>👥 1. 신분 등록 (출석 필수)</h2>
         <button class="member-btn" data-user="쩡이">쩡이</button>
         <button class="member-btn" data-user="엄마">엄마</button>
         <button class="member-btn" data-user="아빠">아빠</button>
@@ -85,7 +85,7 @@
     </div>
 
     <div class="section-box">
-        <h2>🥘 2. 오늘 뭐 먹을겨? (중복 가능)</h2>
+        <h2>🥘 2. 오늘 뭐 먹을 건데? (중복 가능)</h2>
         <input type="text" id="menuInput" placeholder="땡기는 메뉴 입력">
         <button class="btn submit-btn" id="submitBtn">던지기!</button>
     </div>
@@ -141,12 +141,12 @@
 
         submitBtn.addEventListener('click', async () => {
             if (!currentUser) {
-                alert("야! 출석부에서 니 누군지 먼저 골라라 시바!");
+                alert("출석부에 당신이 누구인지 신분을 등록하십시오.");
                 return;
             }
             const text = menuInput.value.trim();
             if (!text) {
-                alert("빈칸으로 던지지 말고 음식 이름을 써라.");
+                alert("빈칸으로 던지지 말고 먹고 싶은 음식 이름을 적으시길.");
                 return;
             }
 
@@ -157,7 +157,7 @@
                     createdAt: serverTimestamp()
                 });
                 menuInput.value = "";
-            } catch (e) { alert("서버 뻗음 주방장 불러라"); }
+            } catch (e) { alert("서버 뻗음 주방장 불러"); }
         });
 
         // 오늘의 제안 목록 실시간 리스너 (모든 단말기 동기화)
@@ -180,7 +180,7 @@
         decideBtn.addEventListener('click', async () => {
             const finalMenu = finalInput.value.trim();
             if (!finalMenu) {
-                alert("결정된 게 없는데 뭘 확정하냐?");
+                alert("결정된 게 없는데 뭘 확정하노?");
                 return;
             }
 
