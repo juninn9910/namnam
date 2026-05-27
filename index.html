@@ -8,32 +8,30 @@
     <style>
         body {
             background-color: #e8d5b5; /* 낡은 노란 장판 색 */
-            color: #4d3a2b; /* 짙은 갈색 */
+            color: #4d3a2b;
             font-family: 'Hi Melody', sans-serif;
             text-align: center;
             padding: 20px;
             margin: 0;
         }
-
-        h1 { font-size: 3rem; margin-bottom: 20px; }
-
+        h1 { font-size: 3rem; margin-bottom: 20px; text-shadow: 1px 1px 2px #fff; }
         .section-box {
             border: 2px dashed #8b5a2b;
             padding: 20px;
             margin: 20px auto;
-            max-width: 400px;
-            background-color: rgba(255, 255, 255, 0.4);
+            max-width: 450px;
+            background-color: rgba(255, 255, 255, 0.5);
             border-radius: 10px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
         }
-
         h2 { font-size: 1.8rem; margin-top: 0; border-bottom: 2px solid #8b5a2b; padding-bottom: 10px; }
-
-        /* 출석부 버튼 스타일 */
+        
+        /* 출석부 라디오 스타일 버튼 */
         .member-btn {
             background-color: #f4e3c5;
             color: #8b5a2b;
             border: 2px solid #8b5a2b;
-            padding: 10px 20px;
+            padding: 8px 15px;
             font-size: 1.3rem;
             font-family: 'Hi Melody', sans-serif;
             cursor: pointer;
@@ -41,84 +39,77 @@
             border-radius: 10px;
             transition: 0.2s;
         }
-
-        /* 출석 버튼 눌렸을 때 */
         .member-btn.active {
-            background-color: #d2691e; /* 구운 색 */
+            background-color: #d2691e;
             color: #fff;
             border-color: #4d3a2b;
         }
 
-        /* 메뉴 입력창 */
         input[type="text"] {
-            width: 70%;
+            width: 65%;
             padding: 10px;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-family: 'Hi Melody', sans-serif;
-            background-color: #fff;
-            color: #4d3a2b;
             border: 2px solid #8b5a2b;
             border-radius: 5px;
         }
-
-        /* 던지기 버튼 */
-        .submit-btn {
-            background-color: #8b0000;
+        .btn {
             color: #fff;
             border: none;
-            padding: 10px 20px;
-            font-size: 1.5rem;
+            padding: 10px 15px;
+            font-size: 1.4rem;
             font-family: 'Hi Melody', sans-serif;
             cursor: pointer;
-            margin-top: 15px;
             border-radius: 5px;
+            margin: 5px;
         }
+        .submit-btn { background-color: #8b0000; } /* 던지기 (빨강) */
+        .decide-btn { background-color: #006400; } /* 확정 (초록) */
 
-        /* 실시간 메뉴 리스트 */
-        #menu-list {
-            text-align: left;
-            list-style-type: none;
-            padding: 0;
-            font-size: 1.5rem;
-        }
-        
-        #menu-list li {
-            border-bottom: 1px dashed #8b5a2b;
-            padding: 10px 0;
-        }
+        ul { text-align: left; list-style-type: none; padding: 0; font-size: 1.5rem; }
+        li { border-bottom: 1px dashed #8b5a2b; padding: 8px 0; display: flex; justify-content: space-between; }
+        .user-tag { font-weight: bold; color: #b22222; margin-right: 10px; }
+        .date-tag { font-size: 1.1rem; color: #777; }
     </style>
 </head>
 <body>
 
-    <h1>쩡이네 최후의 만찬</h1>
+    <h1>🏮 쩡이네 최후의 만찬</h1>
 
     <div class="section-box">
-        <h2>👥 오늘 밥상 출석부</h2>
-        <button class="member-btn">쩡이</button>
-        <button class="member-btn">엄마</button>
-        <button class="member-btn">아빠</button>
-        <button class="member-btn">오빠(객식구)</button>
+        <h2>👥 1. 니 누군지 골라라 (출석 필수)</h2>
+        <button class="member-btn" data-user="쩡이">쩡이</button>
+        <button class="member-btn" data-user="엄마">엄마</button>
+        <button class="member-btn" data-user="아빠">아빠</button>
+        <button class="member-btn" data-user="오빠">오빠</button>
     </div>
 
     <div class="section-box">
-        <h2>🥘 메뉴 투기장</h2>
-        <input type="text" id="menuInput" placeholder="오늘 뭐 먹을겨?">
-        <br>
-        <button class="submit-btn" id="submitBtn">던지기!</button>
+        <h2>🥘 2. 오늘 뭐 먹을겨? (중복 가능)</h2>
+        <input type="text" id="menuInput" placeholder="땡기는 메뉴 입력">
+        <button class="btn submit-btn" id="submitBtn">던지기!</button>
     </div>
 
     <div class="section-box">
-        <h2>📜 오늘의 제안 목록</h2>
-        <ul id="menu-list">
-            </ul>
+        <h2>📜 3. 오늘의 제안 목록 (실시간 공유)</h2>
+        <ul id="menu-list"></ul>
+    </div>
+
+    <div class="section-box">
+        <h2>🔨 4. 최종 메뉴 판결창</h2>
+        <input type="text" id="finalInput" placeholder="오늘 최종 결정된 메뉴">
+        <button class="btn decide-btn" id="decideBtn">오늘 저녁으로 확정!</button>
+    </div>
+
+    <div class="section-box">
+        <h2>📅 5. 역대 먹부림 기록 (누적)</h2>
+        <ul id="history-list"></ul>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-        // 데이터베이스(Firestore)를 쓰기 위한 추가 도구들 수입
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
-        // 네 열쇠 덩어리
         const firebaseConfig = {
             apiKey: "AIzaSyBg0dkoRFZ0QWmR6-N6VL5MXQsI_yA5DwI",
             authDomain: "namnam-54db4.firebaseapp.com",
@@ -128,51 +119,91 @@
             appId: "1:762819520735:web:0eedf9ae418747a7c7216a"
         };
 
-        // 앱 켜고 데이터베이스 연결
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // UI 조작 로직 (출석부 버튼 불 켜고 끄기)
+        let currentUser = "";
+
+        // 출석부 버튼 하나만 선택되게 제어
         const btns = document.querySelectorAll('.member-btn');
         btns.forEach(btn => {
             btn.addEventListener('click', () => {
-                btn.classList.toggle('active');
+                btns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentUser = btn.getAttribute('data-user');
             });
         });
 
-        // 파이어베이스에 메뉴 데이터 던지는 로직
+        // 1. 메뉴 던지기 로직 (제안자 이름 엮어서 파이어베이스행)
         const menuInput = document.getElementById('menuInput');
         const submitBtn = document.getElementById('submitBtn');
         const menuList = document.getElementById('menu-list');
 
         submitBtn.addEventListener('click', async () => {
-            const text = menuInput.value.trim();
-            if (!text) {
-                alert("시바 빈칸으로 던지지 말고 뭐라도 적어!");
+            if (!currentUser) {
+                alert("야! 출석부에서 니 누군지 먼저 골라라 시바!");
                 return;
             }
-            
-            try {
-                // 'menus'라는 이름의 장부에 데이터 추가
-                await addDoc(collection(db, "menus"), {
-                    text: text,
-                    createdAt: serverTimestamp() // 작성 시간 자동 기록
-                });
-                menuInput.value = ""; // 던진 후 입력창 비우기
-            } catch (e) {
-                console.error("에러 터짐:", e);
-                alert("장부에 못 적었다! 콘솔창 확인해봐.");
+            const text = menuInput.value.trim();
+            if (!text) {
+                alert("빈칸으로 던지지 말고 음식 이름을 써라.");
+                return;
             }
+
+            try {
+                await addDoc(collection(db, "menus"), {
+                    user: currentUser,
+                    text: text,
+                    createdAt: serverTimestamp()
+                });
+                menuInput.value = "";
+            } catch (e) { alert("서버 뻗음 주방장 불러라"); }
         });
 
-        // 파이어베이스 장부에서 실시간으로 데이터 긁어오기 (최신순 정렬)
-        const q = query(collection(db, "menus"), orderBy("createdAt", "desc"));
-        onSnapshot(q, (snapshot) => {
-            menuList.innerHTML = ""; // 기존 목록 싹 지우고
+        // 오늘의 제안 목록 실시간 리스너 (모든 단말기 동기화)
+        const qMenus = query(collection(db, "menus"), orderBy("createdAt", "desc"));
+        onSnapshot(qMenus, (snapshot) => {
+            menuList.innerHTML = "";
             snapshot.forEach((doc) => {
+                const data = doc.data();
                 const li = document.createElement("li");
-                li.textContent = "👉 " + doc.data().text;
-                menuList.appendChild(li); // 화면에 새 리스트 꽂아넣기
+                li.innerHTML = `<span><span class="user-tag">[${data.user}]</span>${data.text}</span>`;
+                menuList.appendChild(li);
+            });
+        });
+
+        // 2. 최종 메뉴 확정 로직 (decisions 장부로 인계)
+        const finalInput = document.getElementById('finalInput');
+        const decideBtn = document.getElementById('decideBtn');
+        const historyList = document.getElementById('history-list');
+
+        decideBtn.addEventListener('click', async () => {
+            const finalMenu = finalInput.value.trim();
+            if (!finalMenu) {
+                alert("결정된 게 없는데 뭘 확정하냐?");
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, "decisions"), {
+                    menu: finalMenu,
+                    date: new Date().toLocaleDateString('ko-KR', {month: 'long', day: 'numeric', weekday: 'short'}),
+                    createdAt: serverTimestamp()
+                });
+                finalInput.value = "";
+                alert("오늘 저녁 장부에 박제 완료!");
+            } catch (e) { alert("박제 실패"); }
+        });
+
+        // 역대 먹부림 누적 기록 실시간 리스너
+        const qDecisions = query(collection(db, "decisions"), orderBy("createdAt", "desc"));
+        onSnapshot(qDecisions, (snapshot) => {
+            historyList.innerHTML = "";
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const li = document.createElement("li");
+                li.innerHTML = `<span>🍴 ${data.menu}</span> <span class="date-tag">${data.date || ''}</span>`;
+                historyList.appendChild(li);
             });
         });
     </script>
