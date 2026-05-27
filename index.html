@@ -64,7 +64,7 @@
         }
         .submit-btn { background-color: #8b0000; }
         .roulette-btn { background-color: #d2691e; }
-        .decide-btn { background-color: #006400; width: 100%; margin-top: 10px; font-size: 1.5rem;}
+        .decide-btn { background-color: #006400; }
         
         .toggle-btn { background-color: #8b5a2b; width: 100%; margin-top: 10px; font-size: 1.3rem; text-align: left; padding-left: 15px; }
         
@@ -86,6 +86,18 @@
         .date-tag { font-size: 1.1rem; color: #777; white-space: nowrap; margin-left: 10px; }
         
         .vetoed-text { text-decoration: line-through; color: #999; }
+        
+        /* 결정된 최종 메뉴 + 당일 날짜 동기화 전광판 */
+        #today-decision-board {
+            font-size: 2.2rem;
+            color: #006400;
+            font-weight: bold;
+            margin: 15px 0;
+            padding: 10px;
+            background-color: rgba(0, 100, 0, 0.1);
+            border-radius: 5px;
+            border: 1px solid #006400;
+        }
     </style>
 </head>
 <body>
@@ -118,8 +130,12 @@
 
     <div class="section-box">
         <h2>🔨 4. 오늘의 최종 메뉴 결정</h2>
-        <input type="text" id="finalInput" placeholder="최종 결정된 메뉴 입력">
-        <button class="btn decide-btn" id="decideBtn">오늘의 메뉴로 확정 땅땅! 📢</button>
+        <div id="today-decision-board">오늘의 만찬을 결정해 주세요! 🍽️</div>
+        
+        <div class="input-group">
+            <input type="text" id="finalInput" placeholder="최종 결정된 메뉴 입력">
+            <button class="btn decide-btn" id="decideBtn">확정 땅땅! 📢</button>
+        </div>
         <p style="font-size: 1.1rem; color: #555; margin-top: 5px;">(확정 시 카톡 공유용 문구가 자동 복사됩니다)</p>
     </div>
 
@@ -211,7 +227,6 @@
             menuInput.value = pastDecisions[randomIndex];
         });
 
-        // 리스트 렌더링 (오늘 목록 vs 역대 목록 완벽 분리)
         const menuList = document.getElementById('menu-list');
         const historyMenuList = document.getElementById('history-menu-list');
         const qMenus = query(collection(db, "menus"), orderBy("createdAt", "desc"));
@@ -225,18 +240,21 @@
                 const data = docSnap.data();
                 const docId = docSnap.id;
                 
-                // --- 1. 역대 기록용 li 만들기 (거절 버튼 없음) ---
+                // 1. 역대 기록 장부 렌더링 (거절 버튼 완전 배제)
                 const liHistory = document.createElement("li");
-                let historyContent = `<span><span class="user-tag">[${data.user}]</span> <span class="${data.vetoed ? 'vetoed-text' : ''}">${data.text}</span></span>`;
-                let historyRight = `<div style="text-align: right;">`;
-                if (data.vetoed) {
-                    historyRight += `<span style="color: #999; font-size: 1rem;">(거절됨) </span>`;
-                }
-                historyRight += `<span class="date-tag">${data.date || ''}</span></div>`;
-                liHistory.innerHTML = historyContent + historyRight;
+                liHistory.innerHTML = `
+                    <span>
+                        <span class="user-tag">[${data.user}]</span> 
+                        <span class="${data.vetoed ? 'vetoed-text' : ''}">${data.text}</span>
+                    </span> 
+                    <div style="text-align: right;">
+                        ${data.vetoed ? '<span style="color: #999; font-size: 1rem;">(거절됨) </span>' : ''}
+                        <span class="date-tag">${data.date || ''}</span>
+                    </div>
+                `;
                 historyMenuList.appendChild(liHistory);
 
-                // --- 2. 오늘 목록용 li 만들기 (오늘 날짜일 때만 추가, 거절 버튼 있음) ---
+                // 2. 오늘의 실시간 목록 렌더링 (당일 날짜만, 거절 버튼 독립 부여)
                 if (data.date === todayStr) {
                     const liToday = document.createElement("li");
                     const textSpan = document.createElement("span");
@@ -249,7 +267,7 @@
                         vetoBtn.className = "veto-btn";
                         vetoBtn.textContent = "별로예요 ❌";
                         vetoBtn.onclick = async () => {
-                            if(confirm("이 메뉴를 정중히 거절하시겠습니까? (다른 분들도 알게 됩니다)")) {
+                            if(confirm(`[${data.text}] 메뉴를 정중히 거절하시겠습니까?`)) {
                                 await updateDoc(doc(db, "menus", docId), { vetoed: true });
                             }
                         };
@@ -258,7 +276,7 @@
                         const vetoMsg = document.createElement("span");
                         vetoMsg.style.color = "#999";
                         vetoMsg.style.fontSize = "1rem";
-                        vetoMsg.textContent = " (거절됨)";
+                        vetoMsg.textContent = " (거절됨) ";
                         rightDiv.appendChild(vetoMsg);
                     }
 
@@ -276,6 +294,7 @@
 
         const finalInput = document.getElementById('finalInput');
         const decideBtn = document.getElementById('decideBtn');
+        const todayDecisionBoard = document.getElementById('today-decision-board');
         const historyDecisionList = document.getElementById('history-decision-list');
 
         decideBtn.addEventListener('click', async () => {
@@ -293,7 +312,7 @@
                 navigator.clipboard.writeText(shareText).then(() => {
                     alert("메뉴가 확정되었습니다!\n\n카카오톡에 '붙여넣기' 하시면 가족들에게 바로 안내 문구를 보낼 수 있습니다.");
                 }).catch(err => {
-                    alert("메뉴 확정 완료! (클립보드 복사는 지원하지 않는 환경입니다.)");
+                    alert("메뉴 확정 완료!");
                 });
 
                 finalInput.value = "";
@@ -303,14 +322,24 @@
         const qDecisions = query(collection(db, "decisions"), orderBy("createdAt", "desc"));
         onSnapshot(qDecisions, (snapshot) => {
             historyDecisionList.innerHTML = "";
+            todayDecisionBoard.textContent = "오늘의 만찬을 결정해 주세요! 🍽️"; 
             pastDecisions = [];
+            const todayStr = getTodayString();
+            let todayFound = false;
+
             snapshot.forEach((docSnap) => {
                 const data = docSnap.data();
                 pastDecisions.push(data.menu);
                 
-                const li = document.createElement("li");
-                li.innerHTML = `<span>🍴 ${data.menu}</span> <span class="date-tag">${data.date || ''}</span>`;
-                historyDecisionList.appendChild(li);
+                // 오늘 날짜 전광판에 최종 메뉴 + 당일 날짜 문자열 동기화
+                if (data.date === todayStr && !todayFound) {
+                    todayDecisionBoard.innerHTML = `🎉 오늘(${data.date}) 저녁 만찬: [${data.menu}] 🎉`;
+                    todayFound = true; 
+                } else {
+                    const li = document.createElement("li");
+                    li.innerHTML = `<span>🍴 ${data.menu}</span> <span class="date-tag">${data.date || ''}</span>`;
+                    historyDecisionList.appendChild(li);
+                }
             });
         });
 
