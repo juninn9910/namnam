@@ -3,30 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>쩡이네 최후의 만찬</title>
+    <title>쩡이네 저녁 만찬</title>
     <link href="https://fonts.googleapis.com/css2?family=Hi+Melody&display=swap" rel="stylesheet">
     <style>
         body {
-            background-color: #e8d5b5; /* 낡은 노란 장판 색 */
+            background-color: #e8d5b5; 
             color: #4d3a2b;
             font-family: 'Hi Melody', sans-serif;
             text-align: center;
             padding: 20px;
             margin: 0;
         }
-        h1 { font-size: 3rem; margin-bottom: 20px; text-shadow: 1px 1px 2px #fff; }
+        h1 { font-size: 3rem; margin-bottom: 20px; }
         .section-box {
-            border: 2px dashed #8b5a2b;
+            border: 2px solid #8b5a2b;
             padding: 20px;
-            margin: 20px auto;
+            margin: 15px auto;
             max-width: 450px;
-            background-color: rgba(255, 255, 255, 0.5);
+            background-color: rgba(255, 255, 255, 0.6);
             border-radius: 10px;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
         }
         h2 { font-size: 1.8rem; margin-top: 0; border-bottom: 2px solid #8b5a2b; padding-bottom: 10px; }
         
-        /* 출석부 라디오 스타일 버튼 */
         .member-btn {
             background-color: #f4e3c5;
             color: #8b5a2b;
@@ -37,16 +35,16 @@
             cursor: pointer;
             margin: 5px;
             border-radius: 10px;
-            transition: 0.2s;
         }
         .member-btn.active {
             background-color: #d2691e;
             color: #fff;
-            border-color: #4d3a2b;
         }
+        .pass-btn { background-color: #777; color: #fff; border: 2px solid #555; }
+        .pass-btn.active { background-color: #333; color: #fff; }
 
         input[type="text"] {
-            width: 65%;
+            width: 60%;
             padding: 10px;
             font-size: 1.4rem;
             font-family: 'Hi Melody', sans-serif;
@@ -63,13 +61,20 @@
             border-radius: 5px;
             margin: 5px;
         }
-        .submit-btn { background-color: #8b0000; } /* 던지기 (빨강) */
-        .decide-btn { background-color: #006400; } /* 확정 (초록) */
+        .submit-btn { background-color: #8b0000; }
+        .decide-btn { background-color: #006400; }
+        .toggle-btn { background-color: #8b5a2b; width: 100%; margin-top: 10px; }
 
         ul { text-align: left; list-style-type: none; padding: 0; font-size: 1.5rem; }
         li { border-bottom: 1px dashed #8b5a2b; padding: 8px 0; display: flex; justify-content: space-between; }
         .user-tag { font-weight: bold; color: #b22222; margin-right: 10px; }
+        .status-tag { font-weight: bold; color: #555; margin-right: 10px; }
         .date-tag { font-size: 1.1rem; color: #777; }
+
+        /* 접기/펼치기용 스타일 */
+        .history-content { display: none; text-align: left; }
+        .history-sub-section { margin-top: 15px; border-top: 1px solid #8b5a2b; padding-top: 10px; }
+        .history-sub-section h3 { font-size: 1.5rem; margin: 5px 0; color: #8b5a2b; }
     </style>
 </head>
 <body>
@@ -77,33 +82,46 @@
     <h1>🏮 쩡이네 최후의 만찬</h1>
 
     <div class="section-box">
-        <h2>👥 1. 신분 등록 (출석 필수)</h2>
+        <h2>👥 1. 가족 신분 확인</h2>
         <button class="member-btn" data-user="쩡이">쩡이</button>
         <button class="member-btn" data-user="엄마">엄마</button>
         <button class="member-btn" data-user="아빠">아빠</button>
         <button class="member-btn" data-user="오빠">오빠</button>
+        <hr style="border: 0; border-top: 1px solid #8b5a2b; margin: 10px 0;">
+        <button class="btn pass-btn" id="passBtn">나 오늘 저녁 패스할래!</button>
     </div>
 
     <div class="section-box">
-        <h2>🥘 2. 오늘 뭐 먹을 건데? (중복 가능)</h2>
-        <input type="text" id="menuInput" placeholder="땡기는 메뉴 입력">
-        <button class="btn submit-btn" id="submitBtn">던지기!</button>
+        <h2>🥘 2. 오늘 뭐 먹어?</h2>
+        <input type="text" id="menuInput" placeholder="추천하고 싶은 메뉴 입력">
+        <button class="btn submit-btn" id="submitBtn">의견 내기</button>
     </div>
 
     <div class="section-box">
-        <h2>📜 3. 오늘의 제안 목록 (실시간 공유)</h2>
+        <h2>📜 3. 오늘의 실시간 제안 목록</h2>
         <ul id="menu-list"></ul>
     </div>
 
     <div class="section-box">
-        <h2>🔨 4. 최종 메뉴 판결창</h2>
-        <input type="text" id="finalInput" placeholder="오늘 최종 결정된 메뉴">
-        <button class="btn decide-btn" id="decideBtn">오늘 저녁으로 확정!</button>
+        <h2>🔨 4. 오늘의 최종 메뉴 판결</h2>
+        <input type="text" id="finalInput" placeholder="최종 결정된 메뉴 입력">
+        <button class="btn decide-btn" id="decideBtn">오늘의 메뉴로 확정</button>
     </div>
 
     <div class="section-box">
-        <h2>📅 5. 역대 먹부림 기록 (누적)</h2>
-        <ul id="history-list"></ul>
+        <h2>🗂️ 5. 역대 기록 보물창고</h2>
+        <button class="btn toggle-btn" id="toggleHistory">기록 장부 열기/닫기</button>
+        
+        <div class="history-content" id="historyContent">
+            <div class="history-sub-section">
+                <h3>🏆 역대 최종 낙찰 만찬 목록</h3>
+                <ul id="history-decision-list"></ul>
+            </div>
+            <div class="history-sub-section">
+                <h3>📜 역대 수거된 가족 제안 목록</h3>
+                <ul id="history-menu-list"></ul>
+            </div>
+        </div>
     </div>
 
     <script type="module">
@@ -124,29 +142,48 @@
 
         let currentUser = "";
 
-        // 출석부 버튼 하나만 선택되게 제어
+        // 신분 선택 제어
         const btns = document.querySelectorAll('.member-btn');
         btns.forEach(btn => {
             btn.addEventListener('click', () => {
                 btns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 currentUser = btn.getAttribute('data-user');
+                document.getElementById('passBtn').classList.remove('active');
             });
         });
 
-        // 1. 메뉴 던지기 로직 (제안자 이름 엮어서 파이어베이스행)
+        // 패스 버튼 기능
+        const passBtn = document.getElementById('passBtn');
+        passBtn.addEventListener('click', async () => {
+            if (!currentUser) {
+                alert("가족 구성원을 먼저 선택해 주세요.");
+                return;
+            }
+            try {
+                await addDoc(collection(db, "menus"), {
+                    user: currentUser,
+                    text: "이 사람은 오늘 저녁 패스합니다! ❌",
+                    createdAt: serverTimestamp()
+                });
+                passBtn.classList.add('active');
+            } catch (e) { alert("상태 업데이트 실패"); }
+        });
+
+        // 메뉴 던지기
         const menuInput = document.getElementById('menuInput');
         const submitBtn = document.getElementById('submitBtn');
         const menuList = document.getElementById('menu-list');
+        const historyMenuList = document.getElementById('history-menu-list');
 
         submitBtn.addEventListener('click', async () => {
             if (!currentUser) {
-                alert("출석부에 당신이 누구인지 신분을 등록하십시오.");
+                alert("가족 구성원을 먼저 선택해 주세요.");
                 return;
             }
             const text = menuInput.value.trim();
             if (!text) {
-                alert("빈칸으로 던지지 말고 먹고 싶은 음식 이름을 적으시길.");
+                alert("메뉴 이름을 입력해 주세요.");
                 return;
             }
 
@@ -157,30 +194,39 @@
                     createdAt: serverTimestamp()
                 });
                 menuInput.value = "";
-            } catch (e) { alert("서버 뻗음 주방장 불러"); }
+            } catch (e) { alert("메뉴 전송 실패"); }
         });
 
-        // 오늘의 제안 목록 실시간 리스너 (모든 단말기 동기화)
+        // 오늘의 제안 목록 및 역대 제안 목록 동시 업데이트 (실시간)
         const qMenus = query(collection(db, "menus"), orderBy("createdAt", "desc"));
         onSnapshot(qMenus, (snapshot) => {
             menuList.innerHTML = "";
+            historyMenuList.innerHTML = "";
+            let count = 0;
             snapshot.forEach((doc) => {
                 const data = doc.data();
                 const li = document.createElement("li");
-                li.innerHTML = `<span><span class="user-tag">[${data.user}]</span>${data.text}</span>`;
-                menuList.appendChild(li);
+                li.innerHTML = `<span><span class="user-tag">[${data.user}]</span> ${data.text}</span>`;
+                
+                // 오늘 실시간 목록엔 최신 5개만 노출
+                if (count < 5) {
+                    menuList.appendChild(li.cloneNode(true));
+                }
+                // 역대 제안 목록엔 전부 다 쌓임
+                historyMenuList.appendChild(li);
+                count++;
             });
         });
 
-        // 2. 최종 메뉴 확정 로직 (decisions 장부로 인계)
+        // 최종 결정 박제
         const finalInput = document.getElementById('finalInput');
         const decideBtn = document.getElementById('decideBtn');
-        const historyList = document.getElementById('history-list');
+        const historyDecisionList = document.getElementById('history-decision-list');
 
         decideBtn.addEventListener('click', async () => {
             const finalMenu = finalInput.value.trim();
             if (!finalMenu) {
-                alert("결정된 게 없는데 뭘 확정하노?");
+                alert("결정된 메뉴를 입력해 주세요.");
                 return;
             }
 
@@ -191,20 +237,31 @@
                     createdAt: serverTimestamp()
                 });
                 finalInput.value = "";
-                alert("오늘 저녁 장부에 박제 완료!");
-            } catch (e) { alert("박제 실패"); }
+                alert("오늘의 메뉴가 장부에 기록되었습니다!");
+            } catch (e) { alert("메뉴 확정 실패"); }
         });
 
-        // 역대 먹부림 누적 기록 실시간 리스너
+        // 역대 낙찰 메뉴 목록 업데이트 (실시간)
         const qDecisions = query(collection(db, "decisions"), orderBy("createdAt", "desc"));
         onSnapshot(qDecisions, (snapshot) => {
-            historyList.innerHTML = "";
+            historyDecisionList.innerHTML = "";
             snapshot.forEach((doc) => {
                 const data = doc.data();
                 const li = document.createElement("li");
                 li.innerHTML = `<span>🍴 ${data.menu}</span> <span class="date-tag">${data.date || ''}</span>`;
-                historyList.appendChild(li);
+                historyDecisionList.appendChild(li);
             });
+        });
+
+        // 접기/펼치기 토글 로직
+        const toggleHistory = document.getElementById('toggleHistory');
+        const historyContent = document.getElementById('historyContent');
+        toggleHistory.addEventListener('click', () => {
+            if (historyContent.style.display === "none" || historyContent.style.display === "") {
+                historyContent.style.display = "block";
+            } else {
+                historyContent.style.display = "none";
+            }
         });
     </script>
 </body>
