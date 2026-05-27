@@ -7,23 +7,24 @@
     <link href="https://fonts.googleapis.com/css2?family=Hi+Melody&display=swap" rel="stylesheet">
     <style>
         body {
-            background-color: #e8d5b5; 
+            background-color: #e8d5b5; /* 따뜻한 노란 장판 느낌 */
             color: #4d3a2b;
             font-family: 'Hi Melody', sans-serif;
             text-align: center;
             padding: 20px;
             margin: 0;
         }
-        h1 { font-size: 3rem; margin-bottom: 20px; }
+        h1 { font-size: 3rem; margin-bottom: 20px; color: #8b0000; }
         .section-box {
             border: 2px solid #8b5a2b;
             padding: 20px;
             margin: 15px auto;
-            max-width: 450px;
-            background-color: rgba(255, 255, 255, 0.6);
+            max-width: 480px;
+            background-color: rgba(255, 255, 255, 0.7);
             border-radius: 10px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
         }
-        h2 { font-size: 1.8rem; margin-top: 0; border-bottom: 2px solid #8b5a2b; padding-bottom: 10px; }
+        h2 { font-size: 1.8rem; margin-top: 0; border-bottom: 2px dashed #8b5a2b; padding-bottom: 10px; }
         
         .member-btn {
             background-color: #f4e3c5;
@@ -40,11 +41,12 @@
             background-color: #d2691e;
             color: #fff;
         }
-        .pass-btn { background-color: #777; color: #fff; border: 2px solid #555; }
+        .pass-btn { background-color: #777; color: #fff; border: 2px solid #555; width: 90%; font-size: 1.2rem; }
         .pass-btn.active { background-color: #333; color: #fff; }
 
+        .input-group { display: flex; justify-content: center; gap: 5px; margin-bottom: 10px; }
         input[type="text"] {
-            width: 60%;
+            width: 55%;
             padding: 10px;
             font-size: 1.4rem;
             font-family: 'Hi Melody', sans-serif;
@@ -55,46 +57,59 @@
             color: #fff;
             border: none;
             padding: 10px 15px;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-family: 'Hi Melody', sans-serif;
             cursor: pointer;
             border-radius: 5px;
-            margin: 5px;
         }
         .submit-btn { background-color: #8b0000; }
-        .decide-btn { background-color: #006400; }
-        .toggle-btn { background-color: #8b5a2b; width: 100%; margin-top: 10px; }
+        .roulette-btn { background-color: #d2691e; }
+        .decide-btn { background-color: #006400; width: 100%; margin-top: 10px; font-size: 1.5rem;}
+        
+        .toggle-btn { background-color: #8b5a2b; width: 100%; margin-top: 10px; font-size: 1.3rem; text-align: left; padding-left: 15px; }
+        
+        /* 거절 버튼 스타일 */
+        .veto-btn {
+            background-color: #eee;
+            color: #8b0000;
+            border: 1px solid #8b0000;
+            padding: 3px 8px;
+            font-size: 1rem;
+            font-family: 'Hi Melody', sans-serif;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-left: 10px;
+        }
 
-        ul { text-align: left; list-style-type: none; padding: 0; font-size: 1.5rem; }
-        li { border-bottom: 1px dashed #8b5a2b; padding: 8px 0; display: flex; justify-content: space-between; }
+        ul { text-align: left; list-style-type: none; padding: 0; font-size: 1.5rem; margin-top: 10px; }
+        li { border-bottom: 1px dashed #8b5a2b; padding: 8px 0; display: flex; justify-content: space-between; align-items: center; }
         .user-tag { font-weight: bold; color: #b22222; margin-right: 10px; }
-        .status-tag { font-weight: bold; color: #555; margin-right: 10px; }
-        .date-tag { font-size: 1.1rem; color: #777; }
-
-        /* 접기/펼치기용 스타일 */
-        .history-content { display: none; text-align: left; }
-        .history-sub-section { margin-top: 15px; border-top: 1px solid #8b5a2b; padding-top: 10px; }
-        .history-sub-section h3 { font-size: 1.5rem; margin: 5px 0; color: #8b5a2b; }
+        .date-tag { font-size: 1.1rem; color: #777; white-space: nowrap; margin-left: 10px; }
+        
+        .vetoed-text { text-decoration: line-through; color: #999; }
     </style>
 </head>
 <body>
 
-    <h1>🏮 쩡이네 최후의 만찬</h1>
+    <h1>🏮 쩡이네 저녁 만찬</h1>
 
     <div class="section-box">
-        <h2>👥 1. 가족 신분 확인</h2>
+        <h2>👥 1. 가족 구성원 선택</h2>
         <button class="member-btn" data-user="쩡이">쩡이</button>
         <button class="member-btn" data-user="엄마">엄마</button>
         <button class="member-btn" data-user="아빠">아빠</button>
         <button class="member-btn" data-user="오빠">오빠</button>
-        <hr style="border: 0; border-top: 1px solid #8b5a2b; margin: 10px 0;">
-        <button class="btn pass-btn" id="passBtn">나 오늘 저녁 패스</button>
+        <hr style="border: 0; border-top: 1px dashed #8b5a2b; margin: 15px 0;">
+        <button class="btn pass-btn" id="passBtn">저 오늘 저녁 패스할게요! 🙋‍♀️</button>
     </div>
 
     <div class="section-box">
-        <h2>🥘 2. 오늘 뭐 먹어?</h2>
-        <input type="text" id="menuInput" placeholder="추천하고 싶은 메뉴 입력">
-        <button class="btn submit-btn" id="submitBtn">의견 내기</button>
+        <h2>🥘 2. 오늘 뭐 먹을까요?</h2>
+        <div class="input-group">
+            <input type="text" id="menuInput" placeholder="추천 메뉴 입력">
+            <button class="btn submit-btn" id="submitBtn">의견 내기</button>
+        </div>
+        <button class="btn roulette-btn" id="rouletteBtn">🎲 과거 메뉴 랜덤 뽑기 (룰렛)</button>
     </div>
 
     <div class="section-box">
@@ -103,30 +118,25 @@
     </div>
 
     <div class="section-box">
-        <h2>🔨 4. 오늘의 최종 메뉴 판결</h2>
+        <h2>🔨 4. 오늘의 최종 메뉴 결정</h2>
         <input type="text" id="finalInput" placeholder="최종 결정된 메뉴 입력">
-        <button class="btn decide-btn" id="decideBtn">오늘의 메뉴로 확정</button>
+        <button class="btn decide-btn" id="decideBtn">오늘의 메뉴로 확정 땅땅! 📢</button>
+        <p style="font-size: 1.1rem; color: #555; margin-top: 5px;">(확정 시 카톡 공유용 문구가 자동 복사됩니다)</p>
     </div>
 
     <div class="section-box">
         <h2>🗂️ 5. 역대 기록 보물창고</h2>
-        <button class="btn toggle-btn" id="toggleHistory">기록 장부 열기/닫기</button>
-        
-        <div class="history-content" id="historyContent">
-            <div class="history-sub-section">
-                <h3>🏆 역대 최종 낙찰 만찬 목록</h3>
-                <ul id="history-decision-list"></ul>
-            </div>
-            <div class="history-sub-section">
-                <h3>📜 역대 수거된 가족 제안 목록</h3>
-                <ul id="history-menu-list"></ul>
-            </div>
-        </div>
+        <button class="btn toggle-btn" id="toggleDecisionBtn">🏆 역대 낙찰 만찬 목록 보기 ▼</button>
+        <ul id="history-decision-list" style="display: none;"></ul>
+
+        <button class="btn toggle-btn" id="toggleMenuBtn" style="margin-top: 15px;">📜 역대 수거된 제안 목록 보기 ▼</button>
+        <ul id="history-menu-list" style="display: none;"></ul>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+        // 비토(거부) 기능을 위해 updateDoc, doc 모듈 추가
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, updateDoc, doc } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBg0dkoRFZ0QWmR6-N6VL5MXQsI_yA5DwI",
@@ -141,8 +151,13 @@
         const db = getFirestore(app);
 
         let currentUser = "";
+        let pastDecisions = []; // 룰렛용 배열
+        
+        function getTodayString() {
+            return new Date().toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
+        }
 
-        // 신분 선택 제어
+        // 1. 신분 선택
         const btns = document.querySelectorAll('.member-btn');
         btns.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -153,114 +168,181 @@
             });
         });
 
-        // 패스 버튼 기능
         const passBtn = document.getElementById('passBtn');
         passBtn.addEventListener('click', async () => {
-            if (!currentUser) {
-                alert("가족 구성원을 먼저 선택해 주세요.");
-                return;
-            }
+            if (!currentUser) { alert("가족 구성원을 먼저 선택해 주세요."); return; }
             try {
                 await addDoc(collection(db, "menus"), {
                     user: currentUser,
-                    text: "이 사람은 오늘 저녁 패스합니다! ❌",
+                    text: "이 분은 오늘 저녁을 드시지 않습니다. ❌",
+                    date: getTodayString(),
+                    vetoed: false,
                     createdAt: serverTimestamp()
                 });
                 passBtn.classList.add('active');
-            } catch (e) { alert("상태 업데이트 실패"); }
+                alert("저녁 패스 의견이 전달되었습니다.");
+            } catch (e) { alert("오류가 발생했습니다."); }
         });
 
-        // 메뉴 던지기
+        // 2. 메뉴 던지기
         const menuInput = document.getElementById('menuInput');
         const submitBtn = document.getElementById('submitBtn');
-        const menuList = document.getElementById('menu-list');
-        const historyMenuList = document.getElementById('history-menu-list');
-
+        
         submitBtn.addEventListener('click', async () => {
-            if (!currentUser) {
-                alert("가족 구성원을 먼저 선택해 주세요.");
-                return;
-            }
+            if (!currentUser) { alert("가족 구성원을 먼저 선택해 주세요."); return; }
             const text = menuInput.value.trim();
-            if (!text) {
-                alert("메뉴 이름을 입력해 주세요.");
-                return;
-            }
+            if (!text) { alert("추천할 메뉴 이름을 입력해 주세요."); return; }
 
             try {
                 await addDoc(collection(db, "menus"), {
                     user: currentUser,
                     text: text,
+                    date: getTodayString(),
+                    vetoed: false, // 기본값은 거절 안됨
                     createdAt: serverTimestamp()
                 });
                 menuInput.value = "";
-            } catch (e) { alert("메뉴 전송 실패"); }
+            } catch (e) { alert("의견 전송에 실패했습니다."); }
         });
 
-        // 오늘의 제안 목록 및 역대 제안 목록 동시 업데이트 (실시간)
+        // 룰렛 기능 (역대 낙찰 메뉴 중 랜덤)
+        const rouletteBtn = document.getElementById('rouletteBtn');
+        rouletteBtn.addEventListener('click', () => {
+            if (pastDecisions.length === 0) {
+                alert("아직 쌓여있는 역대 메뉴가 없습니다. 직접 입력해 주세요!");
+                return;
+            }
+            const randomIndex = Math.floor(Math.random() * pastDecisions.length);
+            menuInput.value = pastDecisions[randomIndex];
+        });
+
+        // 3. 제안 목록 실시간 렌더링 (비토 기능 포함)
+        const menuList = document.getElementById('menu-list');
+        const historyMenuList = document.getElementById('history-menu-list');
         const qMenus = query(collection(db, "menus"), orderBy("createdAt", "desc"));
+        
         onSnapshot(qMenus, (snapshot) => {
             menuList.innerHTML = "";
             historyMenuList.innerHTML = "";
-            let count = 0;
-            snapshot.forEach((doc) => {
-                const data = doc.data();
+            const todayStr = getTodayString();
+
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                const docId = docSnap.id;
                 const li = document.createElement("li");
-                li.innerHTML = `<span><span class="user-tag">[${data.user}]</span> ${data.text}</span>`;
                 
-                // 오늘 실시간 목록엔 최신 5개만 노출
-                if (count < 5) {
-                    menuList.appendChild(li.cloneNode(true));
+                // 내용 구성
+                const textSpan = document.createElement("span");
+                textSpan.innerHTML = `<span class="user-tag">[${data.user}]</span> <span class="${data.vetoed ? 'vetoed-text' : ''}">${data.text}</span>`;
+                
+                const rightDiv = document.createElement("div");
+                
+                // 거절(비토)되지 않았고, '패스' 텍스트가 아닐 때만 반대 버튼 표시
+                if (!data.vetoed && !data.text.includes("패스합니다")) {
+                    const vetoBtn = document.createElement("button");
+                    vetoBtn.className = "veto-btn";
+                    vetoBtn.textContent = "별로예요 ❌";
+                    vetoBtn.onclick = async () => {
+                        if(confirm("이 메뉴를 정말 거절하시겠습니까? (다른 분들도 알게 됩니다)")) {
+                            await updateDoc(doc(db, "menus", docId), { vetoed: true });
+                        }
+                    };
+                    rightDiv.appendChild(vetoBtn);
+                } else if (data.vetoed) {
+                    const vetoMsg = document.createElement("span");
+                    vetoMsg.style.color = "#999";
+                    vetoMsg.style.fontSize = "1rem";
+                    vetoMsg.textContent = " (거절됨)";
+                    rightDiv.appendChild(vetoMsg);
                 }
-                // 역대 제안 목록엔 전부 다 쌓임
+
+                const dateSpan = document.createElement("span");
+                dateSpan.className = "date-tag";
+                dateSpan.textContent = data.date || '';
+                rightDiv.appendChild(dateSpan);
+
+                li.appendChild(textSpan);
+                li.appendChild(rightDiv);
+                
+                if (data.date === todayStr) {
+                    menuList.appendChild(li.cloneNode(true));
+                    // 클론된 노드는 이벤트 리스너가 사라지므로, 오늘 목록에는 클릭 이벤트를 다시 달아줘야 함
+                    const cloneVetoBtn = li.querySelector('.veto-btn');
+                    if(cloneVetoBtn) {
+                        menuList.lastChild.querySelector('.veto-btn').onclick = async () => {
+                            if(confirm("이 메뉴를 정중히 거절하시겠습니까?")) {
+                                await updateDoc(doc(db, "menus", docId), { vetoed: true });
+                            }
+                        };
+                    }
+                }
                 historyMenuList.appendChild(li);
-                count++;
             });
         });
 
-        // 최종 결정 박제
+        // 4. 최종 결정 박제 및 자동 복사
         const finalInput = document.getElementById('finalInput');
         const decideBtn = document.getElementById('decideBtn');
         const historyDecisionList = document.getElementById('history-decision-list');
 
         decideBtn.addEventListener('click', async () => {
             const finalMenu = finalInput.value.trim();
-            if (!finalMenu) {
-                alert("결정된 메뉴를 입력해 주세요.");
-                return;
-            }
+            if (!finalMenu) { alert("최종 결정된 메뉴를 입력해 주세요."); return; }
 
             try {
                 await addDoc(collection(db, "decisions"), {
                     menu: finalMenu,
-                    date: new Date().toLocaleDateString('ko-KR', {month: 'long', day: 'numeric', weekday: 'short'}),
+                    date: getTodayString(),
                     createdAt: serverTimestamp()
                 });
+                
+                // 클립보드 복사 로직
+                const shareText = `📢 오늘 쩡이네 저녁은 [${finalMenu}]로 확정되었습니다! 서둘러 귀가하세요 🏃‍♂️`;
+                navigator.clipboard.writeText(shareText).then(() => {
+                    alert("메뉴가 확정되었습니다!\n\n카카오톡에 '붙여넣기' 하시면 가족들에게 바로 안내 문구를 보낼 수 있습니다.");
+                }).catch(err => {
+                    alert("메뉴 확정 완료! (클립보드 복사는 지원하지 않는 환경입니다.)");
+                });
+
                 finalInput.value = "";
-                alert("오늘의 메뉴가 장부에 기록되었습니다!");
-            } catch (e) { alert("메뉴 확정 실패"); }
+            } catch (e) { alert("메뉴 확정에 실패했습니다."); }
         });
 
-        // 역대 낙찰 메뉴 목록 업데이트 (실시간)
+        // 5. 역대 낙찰 목록 렌더링 (룰렛 배열 업데이트 포함)
         const qDecisions = query(collection(db, "decisions"), orderBy("createdAt", "desc"));
         onSnapshot(qDecisions, (snapshot) => {
             historyDecisionList.innerHTML = "";
-            snapshot.forEach((doc) => {
-                const data = doc.data();
+            pastDecisions = []; // 배열 초기화
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                pastDecisions.push(data.menu); // 룰렛용 데이터 적재
+                
                 const li = document.createElement("li");
                 li.innerHTML = `<span>🍴 ${data.menu}</span> <span class="date-tag">${data.date || ''}</span>`;
                 historyDecisionList.appendChild(li);
             });
         });
 
-        // 접기/펼치기 토글 로직
-        const toggleHistory = document.getElementById('toggleHistory');
-        const historyContent = document.getElementById('historyContent');
-        toggleHistory.addEventListener('click', () => {
-            if (historyContent.style.display === "none" || historyContent.style.display === "") {
-                historyContent.style.display = "block";
+        // 토글 버튼들
+        const toggleDecisionBtn = document.getElementById('toggleDecisionBtn');
+        toggleDecisionBtn.addEventListener('click', () => {
+            if (historyDecisionList.style.display === "none") {
+                historyDecisionList.style.display = "block";
+                toggleDecisionBtn.textContent = "🏆 역대 낙찰 만찬 목록 닫기 ▲";
             } else {
-                historyContent.style.display = "none";
+                historyDecisionList.style.display = "none";
+                toggleDecisionBtn.textContent = "🏆 역대 낙찰 만찬 목록 보기 ▼";
+            }
+        });
+
+        const toggleMenuBtn = document.getElementById('toggleMenuBtn');
+        toggleMenuBtn.addEventListener('click', () => {
+            if (historyMenuList.style.display === "none") {
+                historyMenuList.style.display = "block";
+                toggleMenuBtn.textContent = "📜 역대 수거된 제안 목록 닫기 ▲";
+            } else {
+                historyMenuList.style.display = "none";
+                toggleMenuBtn.textContent = "📜 역대 수거된 제안 목록 보기 ▼";
             }
         });
     </script>
