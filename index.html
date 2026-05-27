@@ -66,6 +66,9 @@
         .roulette-btn { background-color: #d2691e; }
         .decide-btn { background-color: #006400; }
         
+        /* 문구 수동 복사 버튼 스타일 */
+        .copy-btn { background-color: #4682b4; width: 100%; margin-top: 5px; font-size: 1.3rem; display: none; }
+        
         .toggle-btn { background-color: #8b5a2b; width: 100%; margin-top: 10px; font-size: 1.3rem; text-align: left; padding-left: 15px; }
         
         .veto-btn {
@@ -87,7 +90,6 @@
         
         .vetoed-text { text-decoration: line-through; color: #999; }
         
-        /* 결정된 최종 메뉴 + 당일 날짜 동기화 전광판 */
         #today-decision-board {
             font-size: 2.2rem;
             color: #006400;
@@ -132,11 +134,14 @@
         <h2>🔨 4. 오늘의 최종 메뉴 결정</h2>
         <div id="today-decision-board">오늘의 만찬을 결정해 주세요! 🍽️</div>
         
+        <button class="btn copy-btn" id="copyAgainBtn">📋 카톡 안내문구 다시 복사하기</button>
+        
+        <hr style="border: 0; border-top: 1px dashed #8b5a2b; margin: 15px 0;">
+        
         <div class="input-group">
             <input type="text" id="finalInput" placeholder="최종 결정된 메뉴 입력">
             <button class="btn decide-btn" id="decideBtn">확정 땅땅! 📢</button>
         </div>
-        <p style="font-size: 1.1rem; color: #555; margin-top: 5px;">(확정 시 카톡 공유용 문구가 자동 복사됩니다)</p>
     </div>
 
     <div class="section-box">
@@ -166,6 +171,7 @@
 
         let currentUser = "";
         let pastDecisions = [];
+        let globalShareText = ""; // 복사 문구 보관용 변수
         
         function getTodayString() {
             return new Date().toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
@@ -240,7 +246,6 @@
                 const data = docSnap.data();
                 const docId = docSnap.id;
                 
-                // 1. 역대 기록 장부 렌더링 (거절 버튼 완전 배제)
                 const liHistory = document.createElement("li");
                 liHistory.innerHTML = `
                     <span>
@@ -254,7 +259,6 @@
                 `;
                 historyMenuList.appendChild(liHistory);
 
-                // 2. 오늘의 실시간 목록 렌더링 (당일 날짜만, 거절 버튼 독립 부여)
                 if (data.date === todayStr) {
                     const liToday = document.createElement("li");
                     const textSpan = document.createElement("span");
@@ -295,6 +299,7 @@
         const finalInput = document.getElementById('finalInput');
         const decideBtn = document.getElementById('decideBtn');
         const todayDecisionBoard = document.getElementById('today-decision-board');
+        const copyAgainBtn = document.getElementById('copyAgainBtn');
         const historyDecisionList = document.getElementById('history-decision-list');
 
         decideBtn.addEventListener('click', async () => {
@@ -308,21 +313,26 @@
                     createdAt: serverTimestamp()
                 });
                 
-                const shareText = `📢 오늘 쩡이네 저녁은 [${finalMenu}]로 확정되었습니다! 서둘러 귀가하세요 🏃‍♂️`;
-                navigator.clipboard.writeText(shareText).then(() => {
-                    alert("메뉴가 확정되었습니다!\n\n카카오톡에 '붙여넣기' 하시면 가족들에게 바로 안내 문구를 보낼 수 있습니다.");
-                }).catch(err => {
-                    alert("메뉴 확정 완료!");
-                });
-
                 finalInput.value = "";
             } catch (e) { alert("메뉴 확정에 실패했습니다."); }
+        });
+
+        // 수동 복사 버튼 클릭 이벤트 리스너 추가
+        copyAgainBtn.addEventListener('click', () => {
+            if (!globalShareText) return;
+            navigator.clipboard.writeText(globalShareText).then(() => {
+                alert("안내 문구가 클립보드에 다시 복사되었습니다!\n가족 단톡방에 붙여넣기(Ctrl+V) 하세요.");
+            }).catch(err => {
+                alert("복사에 실패했습니다. 브라우저 권한을 확인해 주세요.");
+            });
         });
 
         const qDecisions = query(collection(db, "decisions"), orderBy("createdAt", "desc"));
         onSnapshot(qDecisions, (snapshot) => {
             historyDecisionList.innerHTML = "";
             todayDecisionBoard.textContent = "오늘의 만찬을 결정해 주세요! 🍽️"; 
+            copyAgainBtn.style.display = "none"; // 기본적으로 숨김
+            globalShareText = "";
             pastDecisions = [];
             const todayStr = getTodayString();
             let todayFound = false;
@@ -331,9 +341,13 @@
                 const data = docSnap.data();
                 pastDecisions.push(data.menu);
                 
-                // 오늘 날짜 전광판에 최종 메뉴 + 당일 날짜 문자열 동기화
                 if (data.date === todayStr && !todayFound) {
                     todayDecisionBoard.innerHTML = `🎉 오늘(${data.date}) 저녁 만찬: [${data.menu}] 🎉`;
+                    
+                    // 공유할 카톡 문구 글로벌 세팅 및 복사 버튼 노출
+                    globalShareText = `📢 오늘 쩡이네 저녁은 [${data.menu}]로 확정되었습니다! 서둘러 귀가하세요 🏃‍♂️`;
+                    copyAgainBtn.style.display = "block"; 
+                    
                     todayFound = true; 
                 } else {
                     const li = document.createElement("li");
