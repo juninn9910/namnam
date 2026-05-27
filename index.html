@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>쩡이네 최후의 만찬</title>
+    <link href="https://fonts.googleapis.com/css2?family=Hi+Melody&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #e8d5b5; /* 낡은 노란 장판 색 */
+            color: #4d3a2b; /* 짙은 갈색 */
+            font-family: 'Hi Melody', sans-serif;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        h1 { font-size: 3rem; margin-bottom: 20px; }
+
+        .section-box {
+            border: 2px dashed #8b5a2b;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 400px;
+            background-color: rgba(255, 255, 255, 0.4);
+            border-radius: 10px;
+        }
+
+        h2 { font-size: 1.8rem; margin-top: 0; border-bottom: 2px solid #8b5a2b; padding-bottom: 10px; }
+
+        /* 출석부 버튼 스타일 */
+        .member-btn {
+            background-color: #f4e3c5;
+            color: #8b5a2b;
+            border: 2px solid #8b5a2b;
+            padding: 10px 20px;
+            font-size: 1.3rem;
+            font-family: 'Hi Melody', sans-serif;
+            cursor: pointer;
+            margin: 5px;
+            border-radius: 10px;
+            transition: 0.2s;
+        }
+
+        /* 출석 버튼 눌렸을 때 */
+        .member-btn.active {
+            background-color: #d2691e; /* 구운 색 */
+            color: #fff;
+            border-color: #4d3a2b;
+        }
+
+        /* 메뉴 입력창 */
+        input[type="text"] {
+            width: 70%;
+            padding: 10px;
+            font-size: 1.5rem;
+            font-family: 'Hi Melody', sans-serif;
+            background-color: #fff;
+            color: #4d3a2b;
+            border: 2px solid #8b5a2b;
+            border-radius: 5px;
+        }
+
+        /* 던지기 버튼 */
+        .submit-btn {
+            background-color: #8b0000;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1.5rem;
+            font-family: 'Hi Melody', sans-serif;
+            cursor: pointer;
+            margin-top: 15px;
+            border-radius: 5px;
+        }
+
+        /* 실시간 메뉴 리스트 */
+        #menu-list {
+            text-align: left;
+            list-style-type: none;
+            padding: 0;
+            font-size: 1.5rem;
+        }
+        
+        #menu-list li {
+            border-bottom: 1px dashed #8b5a2b;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>쩡이네 최후의 만찬</h1>
+
+    <div class="section-box">
+        <h2>👥 오늘 밥상 출석부</h2>
+        <button class="member-btn">쩡이</button>
+        <button class="member-btn">엄마</button>
+        <button class="member-btn">아빠</button>
+        <button class="member-btn">오빠(객식구)</button>
+    </div>
+
+    <div class="section-box">
+        <h2>🥘 메뉴 투기장</h2>
+        <input type="text" id="menuInput" placeholder="오늘 뭐 먹을겨?">
+        <br>
+        <button class="submit-btn" id="submitBtn">던지기!</button>
+    </div>
+
+    <div class="section-box">
+        <h2>📜 오늘의 제안 목록</h2>
+        <ul id="menu-list">
+            </ul>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+        // 데이터베이스(Firestore)를 쓰기 위한 추가 도구들 수입
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+        // 네 열쇠 덩어리
+        const firebaseConfig = {
+            apiKey: "AIzaSyBg0dkoRFZ0QWmR6-N6VL5MXQsI_yA5DwI",
+            authDomain: "namnam-54db4.firebaseapp.com",
+            projectId: "namnam-54db4",
+            storageBucket: "namnam-54db4.firebasestorage.app",
+            messagingSenderId: "762819520735",
+            appId: "1:762819520735:web:0eedf9ae418747a7c7216a"
+        };
+
+        // 앱 켜고 데이터베이스 연결
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // UI 조작 로직 (출석부 버튼 불 켜고 끄기)
+        const btns = document.querySelectorAll('.member-btn');
+        btns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.classList.toggle('active');
+            });
+        });
+
+        // 파이어베이스에 메뉴 데이터 던지는 로직
+        const menuInput = document.getElementById('menuInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const menuList = document.getElementById('menu-list');
+
+        submitBtn.addEventListener('click', async () => {
+            const text = menuInput.value.trim();
+            if (!text) {
+                alert("시바 빈칸으로 던지지 말고 뭐라도 적어!");
+                return;
+            }
+            
+            try {
+                // 'menus'라는 이름의 장부에 데이터 추가
+                await addDoc(collection(db, "menus"), {
+                    text: text,
+                    createdAt: serverTimestamp() // 작성 시간 자동 기록
+                });
+                menuInput.value = ""; // 던진 후 입력창 비우기
+            } catch (e) {
+                console.error("에러 터짐:", e);
+                alert("장부에 못 적었다! 콘솔창 확인해봐.");
+            }
+        });
+
+        // 파이어베이스 장부에서 실시간으로 데이터 긁어오기 (최신순 정렬)
+        const q = query(collection(db, "menus"), orderBy("createdAt", "desc"));
+        onSnapshot(q, (snapshot) => {
+            menuList.innerHTML = ""; // 기존 목록 싹 지우고
+            snapshot.forEach((doc) => {
+                const li = document.createElement("li");
+                li.textContent = "👉 " + doc.data().text;
+                menuList.appendChild(li); // 화면에 새 리스트 꽂아넣기
+            });
+        });
+    </script>
+</body>
+</html>
